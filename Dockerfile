@@ -1,14 +1,19 @@
 # ============================================================
 # LiteRAG Dockerfile — 多阶段构建
-# Stage 1: 编译原生依赖 (better-sqlite3)
+# Stage 1: 编译原生依赖 + Next.js 构建
 # Stage 2: 运行时精简镜像
+#
+# 使用 Debian-slim 基础镜像，避免 Alpine musl 导致的
+# better-sqlite3 编译缓慢和兼容性问题。
 # ============================================================
 
 # ---- Stage 1: Build ----
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder
 
-# better-sqlite3 编译依赖
-RUN apk add --no-cache python3 make g++
+# better-sqlite3 编译依赖（Debian 包名与 Alpine 不同）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -28,10 +33,7 @@ RUN npm run build
 RUN npm ci --omit=dev && npm cache clean --force
 
 # ---- Stage 2: Runtime ----
-FROM node:22-alpine AS runtime
-
-# better-sqlite3 运行时需要的基本库
-RUN apk add --no-cache libstdc++
+FROM node:22-slim AS runtime
 
 WORKDIR /app
 
@@ -48,13 +50,13 @@ RUN mkdir -p /app/data
 EXPOSE 3000
 
 # 非 root 用户运行
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001 -G nodejs && \
+RUN groupadd -r -g 1001 nodejs && \
+    useradd -r -g nodejs -u 1001 nextjs && \
     chown -R nextjs:nodejs /app
 
 USER nextjs
 
-# 健康检查
+# 健康检查（slim 镜像自带 wget）
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 

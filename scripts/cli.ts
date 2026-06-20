@@ -7,6 +7,7 @@
  *   npx tsx scripts/cli.ts search "<query>"           # 语义检索
  *   npx tsx scripts/cli.ts stats                      # 查看统计
  *   npx tsx scripts/cli.ts clear                      # 清空数据
+ *   npx tsx scripts/cli.ts watch <dir>                # 监听目录自动入库
  *   npx tsx scripts/cli.ts serve                      # 启动 MCP Server
  *   npx tsx scripts/cli.ts health                     # 健康检查
  *   npx tsx scripts/cli.ts next-dev                   # 启动 Next.js 开发服务器
@@ -48,6 +49,9 @@ async function main() {
       break;
     case "clear":
       await cmdClear();
+      break;
+    case "watch":
+      await cmdWatch(args);
       break;
     case "serve":
       await cmdServe();
@@ -176,6 +180,87 @@ async function cmdClear() {
   console.log("✅ 数据已清空");
 }
 
+/** 监听目录，MD 文件变更时自动入库 */
+async function cmdWatch(args: string[]) {
+  const watchDir = args[0];
+  if (!watchDir) {
+    console.log("用法: npx tsx scripts/cli.ts watch <目录路径>");
+    console.log("  npx tsx scripts/cli.ts watch ~/Documents/ObsidianVault");
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(watchDir)) {
+    console.error(`错误: 目录不存在: ${watchDir}`);
+    process.exit(1);
+  }
+
+  const { ingestDocument } = await import("../src/lib/rag/orchestrator");
+
+  // 全量入库现有文件
+  console.log(`📂 扫描目录: ${watchDir}`);
+  const mdFiles = getAllMdFiles(watchDir);
+  console.log(`  发现 ${mdFiles.length} 个 MD 文件`);
+
+  for (const file of mdFiles) {
+    try {
+      const content = fs.readFileSync(file, "utf-8");
+      const relativePath = path.relative(watchDir, file).replace(/\\/g, "/");
+      await ingestDocument(content, { filePath: relativePath });
+      console.log(`  ✅ ${relativePath}`);
+    } catch (e) {
+      console.log(`  ❌ ${file}: ${(e as Error).message}`);
+    }
+  }
+
+  console.log(`\n👁️ 正在监听 ${watchDir} ... (Ctrl+C 退出)\n`);
+
+  // 防抖：避免频繁写入
+  const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  fs.watch(watchDir, { recursive: true }, async (eventType, filename) => {
+    if (!filename?.endsWith(".md")) return;
+    const fullPath = path.join(watchDir, filename);
+
+    // 防抖 1 秒
+    const existing = debounceTimers.get(fullPath);
+    if (existing) clearTimeout(existing);
+
+    debounceTimers.set(
+      fullPath,
+      setTimeout(async () => {
+        debounceTimers.delete(fullPath);
+        if (!fs.existsSync(fullPath)) return;
+        try {
+          const content = fs.readFileSync(fullPath, "utf-8");
+          const relativePath = path.relative(watchDir, fullPath).replace(/\\/g, "/");
+          await ingestDocument(content, { filePath: relativePath });
+          console.log(`  [${new Date().toLocaleTimeString()}] ✅ 自动入库: ${relativePath}`);
+        } catch (e) {
+          console.log(`  ❌ ${fullPath}: ${(e as Error).message}`);
+        }
+      }, 1000)
+    );
+  });
+
+  // 保持进程运行
+  await new Promise(() => {});
+}
+
+/** 递归获取目录下所有 MD 文件 */
+function getAllMdFiles(dir: string): string[] {
+  const results: string[] = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory() && !entry.name.startsWith(".")) {
+      results.push(...getAllMdFiles(fullPath));
+    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      results.push(fullPath);
+    }
+  }
+  return results;
+}
+
 async function cmdServe() {
   console.log("🚀 启动 LiteRAG MCP Server...");
   await import("../src/lib/mcp/server");
@@ -242,6 +327,7 @@ function printHelp() {
   search <query>    语义检索知识库
   ingest <file>     入库文档 (支持 .txt .md)
   ingest --text <s> 入库纯文本
+  watch <dir>       监听目录，MD 文件变更自动入库 (Obsidian Vault)
   stats             查看知识库统计信息
   clear             清空所有数据
   serve             启动 MCP Server (stdio)
@@ -253,6 +339,7 @@ function printHelp() {
   npx tsx scripts/cli.ts search "什么是向量检索"
   npx tsx scripts/cli.ts ingest README.md
   npx tsx scripts/cli.ts ingest --text "RAG 是检索增强生成技术"
+  npx tsx scripts/cli.ts watch ~/Documents/ObsidianVault
   npx tsx scripts/cli.ts stats
   npx tsx scripts/cli.ts health
   npx tsx scripts/cli.ts serve
