@@ -51,6 +51,22 @@ docker compose -f docker-compose.infrastructure.yml exec ollama ollama pull bge-
 docker compose --profile prod up -d
 ```
 
+或使用 LM Studio 本地模型（OpenAI 兼容 API）：
+
+```bash
+# 1. 打开 LM Studio，在 "Developer" 标签页启动本地推理服务（端口 1234）
+# 2. 加载 Embedding 模型（如 nomic-embed-text-v1.5）
+# 3. 修改 .env.local
+```
+
+```env
+MODEL_SOURCE=lmstudio
+LMSTUDIO_HOST=http://localhost:1234/v1
+LMSTUDIO_EMBEDDING_MODEL=text-embedding-nomic-embed-text-v1.5
+# 可选：加载 Chat 模型后配置 Rerank
+# LMSTUDIO_RERANK_MODEL=qwen2.5-7b-instruct
+```
+
 ### 本地安装
 
 ```bash
@@ -65,12 +81,23 @@ npm install
 cp .env.example .env.local
 ```
 
-配置 `.env.local`：
+配置 `.env.local`（三选一）：
 
 ```env
+# 模式 1：远程 OpenAI API
 MODEL_SOURCE=remote
 OPENAI_API_KEY=sk-your-api-key-here
 EMBEDDING_MODEL=text-embedding-ada-002
+
+# 模式 2：本地 Ollama
+# MODEL_SOURCE=local
+# OLLAMA_HOST=http://localhost:11434
+# OLLAMA_EMBEDDING_MODEL=bge-large:latest
+
+# 模式 3：本地 LM Studio（OpenAI 兼容 API，端口 1234）
+# MODEL_SOURCE=lmstudio
+# LMSTUDIO_HOST=http://localhost:1234/v1
+# LMSTUDIO_EMBEDDING_MODEL=text-embedding-nomic-embed-text-v1.5
 ```
 
 ### 使用 CLI

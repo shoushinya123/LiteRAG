@@ -1,6 +1,9 @@
 /**
  * 模型工厂
- * 根据配置动态选择本地模型或远程 API 调用
+ * 根据配置动态选择模型调用方式：
+ * - local:    Ollama 本地模型
+ * - remote:   OpenAI 兼容 API
+ * - lmstudio: LM Studio 本地 OpenAI 兼容 API
  */
 import { config } from "@/lib/utils/config";
 import type { EmbeddingModel, RerankModel } from "@/types";
@@ -20,8 +23,17 @@ export function getEmbeddingModel(): EmbeddingModel {
   console.log(`[LiteRAG] 初始化 Embedding 模型 (${source})`);
 
   if (source === "local") {
+    // Ollama 本地模型
     embeddingModel = new LocalEmbeddingModel(config.ollamaEmbeddingModel);
+  } else if (source === "lmstudio") {
+    // LM Studio 本地 OpenAI 兼容 API
+    embeddingModel = new RemoteEmbeddingModel(
+      config.lmstudioEmbeddingModel,
+      config.lmstudioHost,
+      "" // LM Studio 本地不需要 API key
+    );
   } else {
+    // 远程 OpenAI 兼容 API
     embeddingModel = new RemoteEmbeddingModel(
       config.embeddingModel,
       config.openaiBaseUrl,
@@ -41,8 +53,17 @@ export function getRerankModel(): RerankModel | null {
   const source = config.modelSource;
 
   if (source === "local" && config.ollamaRerankModel) {
+    // Ollama 本地 Rerank（通过 Chat API 评分）
     rerankModel = new LocalRerankModel(config.ollamaRerankModel);
+  } else if (source === "lmstudio" && config.lmstudioRerankModel) {
+    // LM Studio 本地 Rerank（通过 Chat API 评分）
+    rerankModel = new RemoteRerankModel(
+      config.lmstudioRerankModel,
+      config.lmstudioHost,
+      "" // LM Studio 本地不需要 API key
+    );
   } else if (source === "remote" && config.rerankModel) {
+    // 远程 OpenAI Rerank
     rerankModel = new RemoteRerankModel(
       config.rerankModel,
       config.openaiBaseUrl,
@@ -70,7 +91,6 @@ export async function checkModelAvailability(): Promise<{
 }> {
   try {
     const embed = getEmbeddingModel();
-    // 使用空文本测试
     const result = await embed.embedSingle("test");
     const embeddingOk = result.length === config.vectorDimensions;
 

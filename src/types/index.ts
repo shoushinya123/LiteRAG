@@ -3,7 +3,7 @@
 // ============================================================
 
 /** 模型调用来源 */
-export type ModelSource = "local" | "remote";
+export type ModelSource = "local" | "remote" | "lmstudio";
 
 /** RAG 检索请求参数 */
 export interface RAGQueryParams {

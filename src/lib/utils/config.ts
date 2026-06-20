@@ -45,6 +45,21 @@ class Config {
     return process.env.OLLAMA_RERANK_MODEL || "";
   }
 
+  /** LM Studio 服务地址（OpenAI 兼容 API） */
+  get lmstudioHost(): string {
+    return process.env.LMSTUDIO_HOST || "http://localhost:1234/v1";
+  }
+
+  /** LM Studio Embedding 模型（取决于 LM Studio 中加载的模型） */
+  get lmstudioEmbeddingModel(): string {
+    return process.env.LMSTUDIO_EMBEDDING_MODEL || "text-embedding-nomic-embed-text-v1.5";
+  }
+
+  /** LM Studio Rerank 模型（通过 Chat API 评分实现） */
+  get lmstudioRerankModel(): string {
+    return process.env.LMSTUDIO_RERANK_MODEL || "";
+  }
+
   /** 数据库文件路径 */
   get databasePath(): string {
     return process.env.DATABASE_PATH || "./data/literag.db";

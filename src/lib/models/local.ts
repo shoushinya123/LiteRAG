@@ -152,3 +152,37 @@ export async function listOllamaModels(): Promise<string[]> {
     return [];
   }
 }
+
+// ============================================================
+// LM Studio 工具函数
+// ============================================================
+
+/**
+ * 检查 LM Studio 服务是否可用
+ * LM Studio 提供 OpenAI 兼容的 /v1/models 端点
+ */
+export async function checkLmStudioHealth(): Promise<boolean> {
+  try {
+    const response = await fetch(`${config.lmstudioHost}/models`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 获取 LM Studio 中已加载的模型列表
+ */
+export async function listLmStudioModels(): Promise<string[]> {
+  try {
+    const response = await fetch(`${config.lmstudioHost}/models`);
+    const data = (await response.json()) as {
+      data: Array<{ id: string }>;
+    };
+    return data.data?.map((m) => m.id) || [];
+  } catch {
+    return [];
+  }
+}
