@@ -33,3 +33,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# obsidian plugin build artifacts
+obsidian-plugin/main.js
+obsidian-plugin/main.css
+obsidian-plugin/node_modules/

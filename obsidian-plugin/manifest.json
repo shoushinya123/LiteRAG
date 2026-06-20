@@ -1,0 +1,10 @@
+{
+  "id": "literag-copilot",
+  "name": "小夏同学Lite",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "小夏同学Lite —— 基于 LiteRAG 的 Obsidian AI 对话助手，检索笔记、LLM 对话、一键保存并自动入库",
+  "author": "shoushinya123",
+  "authorUrl": "https://github.com/shoushinya123",
+  "isDesktopOnly": true
+}

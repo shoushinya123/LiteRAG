@@ -1,0 +1,22 @@
+{
+  "name": "obsidian-xiaoxia-lite",
+  "version": "0.1.0",
+  "description": "小夏同学Lite - Obsidian AI 对话助手，RAG 检索 + LLM 生成 + 自动入库",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "builtin-modules": "^4.0.0",
+    "esbuild": "^0.20.0",
+    "obsidian": "^1.7.0",
+    "typescript": "^5.5.0"
+  }
+}
