@@ -18,7 +18,40 @@
 
 ## 快速开始
 
-### 1. 克隆 & 安装
+### Docker 部署（推荐）
+
+```bash
+git clone https://github.com/shoushinya123/LiteRAG.git
+cd LiteRAG
+
+# 创建环境变量文件
+cp .env.example .env.local
+# 编辑 .env.local，填入 OPENAI_API_KEY
+
+# 生产模式启动
+docker compose --profile prod up -d
+
+# 查看日志
+docker compose logs -f literag
+
+# 使用 CLI
+docker compose --profile cli run --rm literag-cli scripts/cli.ts stats
+docker compose --profile cli run --rm literag-cli scripts/cli.ts search "什么是 RAG"
+```
+
+或使用本地 Ollama 模型：
+
+```bash
+# 1. 启动 Ollama 服务
+docker compose -f docker-compose.infrastructure.yml up -d
+docker compose -f docker-compose.infrastructure.yml exec ollama ollama pull bge-large
+
+# 2. 修改 .env.local: MODEL_SOURCE=local
+# 3. 启动主服务
+docker compose --profile prod up -d
+```
+
+### 本地安装
 
 ```bash
 git clone https://github.com/shoushinya123/LiteRAG.git
@@ -32,24 +65,15 @@ npm install
 cp .env.example .env.local
 ```
 
-### 2. 配置
-
-编辑 `.env.local`：
+配置 `.env.local`：
 
 ```env
-# 模型模式：local（Ollama）或 remote（OpenAI API）
 MODEL_SOURCE=remote
-
-# 远程模式配置
 OPENAI_API_KEY=sk-your-api-key-here
 EMBEDDING_MODEL=text-embedding-ada-002
-
-# 本地模式配置（需要先安装 Ollama: ollama pull bge-large）
-# MODEL_SOURCE=local
-# OLLAMA_HOST=http://localhost:11434
 ```
 
-### 3. 使用 CLI
+### 使用 CLI
 
 ```bash
 # 查看帮助

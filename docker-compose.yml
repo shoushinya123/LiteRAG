@@ -1,0 +1,126 @@
+# ============================================================
+# LiteRAG Docker Compose
+#
+# 开发模式:  docker compose --profile dev up
+#   本地代码热更新，直接挂载源码运行 next dev
+#
+# 生产模式:  docker compose --profile prod up
+#   多阶段构建镜像，next start 运行
+#
+# 仅 CLI:    docker compose run --rm literag-cli <command>
+# ============================================================
+
+services:
+  # ============================================================
+  # 生产模式服务
+  # ============================================================
+  literag:
+    profiles: ["prod"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: literag:latest
+    container_name: literag
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      # 从 .env.local 继承（或直接在这里覆盖）
+      - MODEL_SOURCE=${MODEL_SOURCE:-remote}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-ada-002}
+      - RERANK_MODEL=${RERANK_MODEL:-}
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://localhost:11434}
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-bge-large:latest}
+      - OLLAMA_RERANK_MODEL=${OLLAMA_RERANK_MODEL:-}
+      - DATABASE_PATH=${DATABASE_PATH:-/app/data/literag.db}
+      - DEFAULT_TOP_K=${DEFAULT_TOP_K:-5}
+      - DEFAULT_HYBRID_SEARCH=${DEFAULT_HYBRID_SEARCH:-true}
+      - DEFAULT_RERANK=${DEFAULT_RERANK:-true}
+      - CHUNK_SIZE=${CHUNK_SIZE:-512}
+      - CHUNK_OVERLAP=${CHUNK_OVERLAP:-128}
+    volumes:
+      # 持久化数据库文件
+      - literag_data:/app/data
+    restart: unless-stopped
+    networks:
+      - literag-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ============================================================
+  # 开发模式服务（代码热更新）
+  # ============================================================
+  literag-dev:
+    profiles: ["dev"]
+    image: node:22-alpine
+    container_name: literag-dev
+    working_dir: /app
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - MODEL_SOURCE=${MODEL_SOURCE:-remote}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-ada-002}
+      - RERANK_MODEL=${RERANK_MODEL:-}
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-bge-large:latest}
+      - DATABASE_PATH=${DATABASE_PATH:-/app/data/literag.db}
+    volumes:
+      # 挂载源码，支持热更新
+      - .:/app
+      # 排除 node_modules（容器内独立安装）
+      - /app/node_modules
+      # 持久化数据库
+      - literag_data:/app/data
+    command: >
+      sh -c "
+        apk add --no-cache python3 make g++ &&
+        npm install &&
+        npx next dev --turbopack -H 0.0.0.0
+      "
+    networks:
+      - literag-net
+    extra_hosts:
+      # 允许容器内访问宿主机上的 Ollama 服务
+      - "host.docker.internal:host-gateway"
+
+  # ============================================================
+  # CLI 工具（一次性运行）
+  # ============================================================
+  literag-cli:
+    profiles: ["cli"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: literag:latest
+    container_name: literag-cli
+    environment:
+      - MODEL_SOURCE=${MODEL_SOURCE:-remote}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-ada-002}
+      - DATABASE_PATH=${DATABASE_PATH:-/app/data/literag.db}
+      - DEFAULT_TOP_K=${DEFAULT_TOP_K:-5}
+    volumes:
+      - literag_data:/app/data
+    networks:
+      - literag-net
+    # 用法: docker compose --profile cli run --rm literag-cli tsx scripts/cli.ts <command>
+    entrypoint: ["npx", "tsx"]
+    command: ["scripts/cli.ts", "stats"]
+
+volumes:
+  literag_data:
+    name: literag_data
+    driver: local
+
+networks:
+  literag-net:
+    name: literag-net
+    driver: bridge

@@ -1,0 +1,40 @@
+# ============================================================
+# LiteRAG 基础设施服务（可选）
+#
+# 启动本地 Ollama 模型服务
+#   docker compose -f docker-compose.infrastructure.yml up -d
+#
+# 拉取 Embedding 模型
+#   docker compose -f docker-compose.infrastructure.yml exec ollama ollama pull bge-large
+# ============================================================
+
+services:
+  # Ollama - 本地模型推理服务
+  ollama:
+    image: ollama/ollama:latest
+    container_name: literag-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - literag-net
+    # GPU 加速（NVIDIA）
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:
+    name: ollama_data
+    driver: local
+
+networks:
+  literag-net:
+    name: literag-net
+    external: true

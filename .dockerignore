@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# env files — 运行时通过环境变量注入
+.env
+.env.local
+.env.*.local
+
+# database files — 运行时通过 volume 挂载
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# git
+.git/
+.gitignore
+
+# docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# misc
+*.md
+docs/
+scripts/setup.sh
