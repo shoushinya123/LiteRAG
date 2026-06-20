@@ -897,3 +897,113 @@
   gap: 4px;
   align-items: center;
 }
+
+/* ---- @ 提及弹出层 ---- */
+.literag-mention-popup {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 110;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+}
+
+.literag-mention-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+}
+
+.literag-mention-hint {
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.literag-mention-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.literag-mention-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text-normal);
+  transition: background 0.1s;
+}
+
+.literag-mention-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.literag-mention-active {
+  background: var(--background-modifier-hover) !important;
+}
+
+.literag-mention-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+
+.literag-mention-name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.literag-mention-count {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.literag-mention-path {
+  font-size: 10px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+.literag-mention-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ---- 工具栏提示 ---- */
+.literag-toolbar-hint {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.literag-toolbar-hint kbd {
+  padding: 1px 4px;
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: inherit;
+}

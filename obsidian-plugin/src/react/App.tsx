@@ -54,6 +54,7 @@ export function App({ app, liteRAG, llm, noteWriter, settings, onSettingsChange,
     useHybridSearch: settings.useHybridSearch,
     useRerank: settings.useRerank,
     onWriteFile,
+    autoApplyFileEdits: settings.autoApplyFileEdits || false,
   });
 
   const handleSave = async (id: string, content: string, title?: string) => {
