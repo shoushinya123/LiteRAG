@@ -54,7 +54,6 @@ export function App({ app, liteRAG, llm, noteWriter, settings, onSettingsChange,
     useHybridSearch: settings.useHybridSearch,
     useRerank: settings.useRerank,
     onWriteFile,
-    autoApplyFileEdits: settings.autoApplyFileEdits || false,
   });
 
   const handleSave = async (id: string, content: string, title?: string) => {
@@ -81,10 +80,9 @@ export function App({ app, liteRAG, llm, noteWriter, settings, onSettingsChange,
 
   return (
     <div className="literag-app">
-      {/* 顶部状态栏（含模式切换） */}
+      {/* 顶部状态栏 */}
       <StatusBar
         mode={chatMode}
-        onModeChange={handleModeChange}
         liteRAGUrl={settings.liteRAGUrl}
         provider={settings.llmProvider}
         model={model}
@@ -123,9 +121,11 @@ export function App({ app, liteRAG, llm, noteWriter, settings, onSettingsChange,
         </div>
       )}
 
-      {/* 输入框 */}
+      {/* 输入框（含模式切换按钮） */}
       <ChatInput
         app={app}
+        mode={chatMode}
+        onModeChange={handleModeChange}
         onSend={handleSend}
         disabled={isSearching || isGenerating}
       />

@@ -1,12 +1,11 @@
 // ============================================================
-// StatusBar.tsx — 顶部状态栏（含 ARK/Agent 模式切换）
+// StatusBar.tsx — 顶部状态栏（只显示状态和模型，不含模式切换）
 // ============================================================
 import { useState, useEffect } from "react";
 import type { ChatMode } from "../types";
 
 interface Props {
   mode: ChatMode;
-  onModeChange: (mode: ChatMode) => void;
   liteRAGUrl: string;
   provider: "deepseek" | "openai";
   model: string;
@@ -14,7 +13,7 @@ interface Props {
   hasMessages: boolean;
 }
 
-export function StatusBar({ mode, onModeChange, liteRAGUrl, provider, model, onClear, hasMessages }: Props) {
+export function StatusBar({ mode, liteRAGUrl, provider, model, onClear, hasMessages }: Props) {
   const [ragStatus, setRagStatus] = useState<"checking" | "online" | "offline">("checking");
 
   useEffect(() => {
@@ -38,30 +37,13 @@ export function StatusBar({ mode, onModeChange, liteRAGUrl, provider, model, onC
 
   return (
     <div className="literag-header">
-      {/* 左侧：Logo + 模式切换 */}
+      {/* 左侧：Logo + 当前模式标签 */}
       <div className="literag-header-left">
         <span style={{ fontSize: 16 }}>🌸</span>
         <span className="literag-header-title">小夏同学Lite</span>
-
-        {/* ARK / Agent 分段切换器 */}
-        <div className="literag-mode-toggle">
-          <button
-            className={`literag-mode-btn ${mode === "ark" ? "literag-mode-active" : ""}`}
-            onClick={() => onModeChange("ark")}
-            title="ARK 模式：纯模型对话，不检索知识库"
-          >
-            <span className="literag-mode-icon">💬</span>
-            <span className="literag-mode-label">ARK</span>
-          </button>
-          <button
-            className={`literag-mode-btn ${mode === "agent" ? "literag-mode-active" : ""}`}
-            onClick={() => onModeChange("agent")}
-            title="Agent 模式：检索知识库后综合回复"
-          >
-            <span className="literag-mode-icon">🤖</span>
-            <span className="literag-mode-label">Agent</span>
-          </button>
-        </div>
+        <span className={`literag-mode-tag ${mode}`}>
+          {mode === "ark" ? "💬 ARK" : "🤖 Agent"}
+        </span>
       </div>
 
       {/* 右侧：状态徽章 + 模型 + 清空 */}

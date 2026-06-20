@@ -40,9 +40,6 @@ export interface LiteRAGCopilotSettings {
   // === 缓存 ===
   enableEmbeddingCache: boolean;
   maxCacheEntries: number;
-
-  // === 文件编辑 ===
-  autoApplyFileEdits: boolean;
 }
 
 export const DEFAULT_SETTINGS: LiteRAGCopilotSettings = {
@@ -70,9 +67,6 @@ export const DEFAULT_SETTINGS: LiteRAGCopilotSettings = {
 
   enableEmbeddingCache: true,
   maxCacheEntries: 500,
-
-  // === 文件编辑 ===
-  autoApplyFileEdits: false,
 };
 
 /** RAG 检索结果 */

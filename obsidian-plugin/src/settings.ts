@@ -18,7 +18,6 @@ export class LiteRAGCopilotSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     this.renderChatModeSection(containerEl);
-    this.renderFileEditSection(containerEl);
     this.renderLiteRAGSection(containerEl);
     this.renderLLMSection(containerEl);
     this.renderRetrievalSection(containerEl);
@@ -42,21 +41,6 @@ export class LiteRAGCopilotSettingTab extends PluginSettingTab {
             s.chatMode = value as "ark" | "agent";
             await this.plugin.saveSettings();
           })
-      );
-  }
-
-  private renderFileEditSection(el: HTMLElement) {
-    const s = this.plugin.settings;
-    el.createEl("h2", { text: "文件编辑" });
-
-    new Setting(el)
-      .setName("自动应用文件修改")
-      .setDesc("开启后，AI 生成文件修改内容时将自动写入文件（无需手动确认）。⚠️ 请注意：开启后 AI 修改将直接生效，请谨慎使用。")
-      .addToggle((toggle) =>
-        toggle.setValue(s.autoApplyFileEdits || false).onChange(async (value) => {
-          s.autoApplyFileEdits = value;
-          await this.plugin.saveSettings();
-        })
       );
   }
 
