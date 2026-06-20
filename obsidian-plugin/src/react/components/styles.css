@@ -591,6 +591,7 @@
   align-items: flex-end;
   gap: 6px;
   padding: 8px 12px;
+  position: relative; /* 让内部 popover 正确定位 */
 }
 
 .literag-input {
@@ -844,36 +845,6 @@
   flex-shrink: 0;
 }
 
-/* ---- 模式切换按钮（ChatInput 工具栏） ---- */
-.literag-mode-toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  padding: 3px 8px;
-  border: 1.5px solid;
-  border-radius: 6px;
-  background: transparent;
-  cursor: pointer;
-  font-size: 11.5px;
-  font-weight: 600;
-  transition: all 0.15s;
-  color: var(--text-muted);
-}
-.literag-mode-toggle-btn:hover {
-  background: var(--background-modifier-hover);
-}
-.literag-mode-toggle-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.literag-mode-toggle-icon {
-  font-size: 13px;
-}
-.literag-mode-toggle-label {
-  font-size: 11px;
-  letter-spacing: 0.3px;
-}
-
 /* ---- StatusBar 模式标签 ---- */
 .literag-mode-tag {
   font-size: 10.5px;
@@ -889,152 +860,84 @@
   color: #f59e0b;
 }
 
-/* ---- 模式选择抽屉（从底部向上弹出） ---- */
-.literag-mode-drawer-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  animation: literag-overlay-in 0.2s ease;
+/* ============================================================
+ * 模式切换 Popover（小型弹出面板，紧贴按钮上方）
+ * ============================================================ */
+.literag-mode-popover-wrap {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  z-index: 10;
 }
 
-@keyframes literag-overlay-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.literag-mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 9px;
+  border: 1.5px solid;
+  border-radius: 7px;
+  background: var(--background-primary);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.literag-mode-toggle-btn:hover {
+  background: var(--background-modifier-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-.literag-mode-drawer {
-  width: 100%;
-  max-width: 420px;
+.literag-mode-popover {
+  width: 220px;
   background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
-  border-bottom: none;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  max-height: 70vh;
-  animation: literag-drawer-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04) inset;
   overflow: hidden;
+  animation: literag-pop-in 0.14s ease;
 }
 
-@keyframes literag-drawer-up {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes literag-pop-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.literag-drawer-handle {
-  width: 36px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--background-modifier-border);
-  margin: 8px auto 4px;
-  flex-shrink: 0;
-}
-
-.literag-drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px 12px;
-  border-bottom: 1px solid var(--background-modifier-border);
-}
-
-.literag-drawer-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-normal);
-}
-
-.literag-drawer-close {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: var(--text-muted);
-  padding: 2px 6px;
-  border-radius: 6px;
-  transition: background 0.1s;
-}
-.literag-drawer-close:hover {
-  background: var(--background-modifier-hover);
-}
-
-.literag-drawer-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 12px 20px;
-  overflow-y: auto;
-}
-
-.literag-drawer-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px;
-  border: 1.5px solid var(--background-modifier-border);
-  border-radius: 12px;
-  background: var(--background-primary);
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: left;
-  width: 100%;
-}
-.literag-drawer-option:hover {
-  background: var(--background-modifier-hover);
-  border-color: var(--interactive-accent);
-}
-.literag-drawer-option-active {
-  border-color: var(--interactive-accent);
-  background: rgba(var(--interactive-accent-rgb), 0.08);
-}
-
-.literag-drawer-option-icon {
-  font-size: 28px;
-  flex-shrink: 0;
-  line-height: 1;
-  margin-top: 2px;
-}
-
-.literag-drawer-option-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.literag-drawer-option-name {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-normal);
+.literag-mode-popover-option {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 4px;
-}
-
-.literag-drawer-option-check {
-  font-size: 11px;
+  padding: 11px 13px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--interactive-accent);
-  background: rgba(var(--interactive-accent-rgb), 0.12);
-  padding: 1px 6px;
-  border-radius: 4px;
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: background 0.1s;
+  line-height: 1.3;
+}
+.literag-mode-popover-option:hover {
+  background: var(--background-modifier-hover);
+}
+.literag-mode-popover-option.active {
+  background: rgba(var(--interactive-accent-rgb), 0.08);
+  border-left: 3px solid var(--interactive-accent);
 }
 
-.literag-drawer-option-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-.literag-drawer-option-hint {
-  display: block;
-  font-size: 11px;
+.literag-mode-popover-hint {
+  margin-left: auto;
+  font-size: 10.5px;
   color: var(--text-faint);
-  margin-top: 3px;
+  font-weight: 400;
+}
+
+.literag-mode-popover-check {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--interactive-accent);
 }
 
 /* ============================================================
