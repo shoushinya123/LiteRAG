@@ -862,6 +862,7 @@
 
 /* ============================================================
  * 模式切换 Popover（小型弹出面板，紧贴按钮上方）
+ * 修复：圆角统一、内边距、滚动条、对齐、动画、深色模式
  * ============================================================ */
 .literag-mode-popover-wrap {
   position: absolute;
@@ -873,100 +874,243 @@
 .literag-mode-toggle-btn {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 4px 9px;
+  gap: 4px;
+  padding: 5px 10px;
   border: 1.5px solid;
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--background-primary);
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
-  transition: all 0.12s;
+  transition: all 0.18s ease;
   white-space: nowrap;
 }
-.literag-mode-toggle-btn:hover {
+.literag-mode-toggle-btn:hover:not(:disabled) {
   background: var(--background-modifier-hover);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.literag-mode-toggle-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
+/* ---- Popover 容器 ---- */
 .literag-mode-popover {
-  width: 220px;
+  width: 280px;
   background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  border-radius: 12px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
   overflow: hidden;
-  animation: literag-pop-in 0.14s ease;
+  animation: literag-pop-in 0.18s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes literag-pop-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.literag-mode-popover-option {
+/* ---- 标题栏 ---- */
+.literag-mode-popover-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 11px 13px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-normal);
-  cursor: pointer;
-  transition: background 0.1s;
-  line-height: 1.3;
-}
-.literag-mode-popover-option:hover {
-  background: var(--background-modifier-hover);
-}
-.literag-mode-popover-option.active {
-  background: rgba(var(--interactive-accent-rgb), 0.08);
-  border-left: 3px solid var(--interactive-accent);
+  justify-content: space-between;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
 }
 
-.literag-mode-popover-hint {
-  margin-left: auto;
-  font-size: 10.5px;
+.literag-mode-popover-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-normal);
+  letter-spacing: 0.01em;
+}
+
+.literag-mode-popover-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.literag-mode-popover-close:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+  transform: scale(1.05);
+}
+
+/* ---- 选项列表容器（含滚动缓冲）---- */
+.literag-mode-popover-body {
+  overflow-y: auto;
+  padding: 6px 0 8px;
+  scroll-behavior: smooth;
+}
+
+/* 滚动条美化 + 避免遮挡内容 */
+.literag-mode-popover-body::-webkit-scrollbar {
+  width: 5px;
+}
+.literag-mode-popover-body::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+.literag-mode-popover-body::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+}
+.literag-mode-popover-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ---- 选项卡片 ---- */
+.literag-mode-popover-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 0 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.literag-mode-popover-option:first-child {
+  margin-top: 6px;
+}
+
+.literag-mode-popover-option:last-child {
+  margin-bottom: 2px;
+}
+
+.literag-mode-popover-option:hover {
+  background: var(--background-modifier-hover);
+  transform: translateX(2px);
+}
+
+/* 选中态（ARK 紫色 / Agent 橙色）*/
+.literag-mode-popover-option.active {
+  background: rgba(139, 92, 246, 0.08);
+  border-left: 3px solid #8b5cf6;
+  padding-left: 11px;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.08);
+}
+
+.literag-mode-popover-option.active:hover {
+  background: rgba(139, 92, 246, 0.13);
+}
+
+/* ---- 选项图标（与文字垂直居中对齐）---- */
+.literag-mode-option-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 1px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- 选项文字内容 ---- */
+.literag-mode-option-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.literag-mode-option-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-normal);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.3;
+}
+
+.literag-mode-option-check {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 1px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.literag-mode-option-desc {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.literag-mode-option-hint {
+  font-size: 11px;
   color: var(--text-faint);
   font-weight: 400;
 }
 
-.literag-mode-popover-check {
-  margin-left: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--interactive-accent);
+/* ---- 深色模式适配（提高对比度，区分 hover/active）---- */
+.theme-dark .literag-mode-popover-option.active {
+  background: rgba(139, 92, 246, 0.14);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.12);
+}
+
+.theme-dark .literag-mode-toggle-btn:hover:not(:disabled) {
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.2);
 }
 
 /* ============================================================
  * @ 提及弹出层（输入 @ 时触发）
+ * 修复：滚动条、对齐、文字截断、动画
  * ============================================================ */
 .literag-mention-popup {
   width: 320px;
-  max-height: 260px;
+  max-height: 280px;
   background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  border:1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.4),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: literag-mention-in 0.15s ease;
+  animation: literag-mention-in 0.18s ease;
 }
 
 @keyframes literag-mention-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .literag-mention-header {
-  padding: 8px 12px 6px;
-  font-size: 11.5px;
+  padding: 10px 14px 8px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-normal);
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-bottom:1px solid var(--background-modifier-border);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -974,45 +1118,65 @@
 }
 
 .literag-mention-query {
-  color: var(--interactive-accent);
+  color: #8b5cf6;
   font-weight: 500;
 }
 
 .literag-mention-list {
   overflow-y: auto;
-  padding: 4px;
+  padding: 4px 0;
+  scroll-behavior: smooth;
+}
+
+/* 滚动条美化 + 避免遮挡内容 */
+.literag-mention-list::-webkit-scrollbar {
+  width: 5px;
+}
+.literag-mention-list::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+.literag-mention-list::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+}
+.literag-mention-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 .literag-mention-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 1px 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: all 0.15s ease;
 }
-
 .literag-mention-item:hover,
 .literag-mention-active {
-  background: var(--interactive-accent-hover) !important;
+  background: rgba(139, 92, 246, 0.1) !important;
+  transform: translateX(2px);
 }
 
 .literag-mention-icon {
   font-size: 16px;
   flex-shrink: 0;
   line-height: 1;
+  width: 20px;
+  text-align: center;
 }
 .literag-mention-icon-folder {
   font-size: 18px;
 }
 
 .literag-mention-item-body {
-  flex: 1;
+  flex:1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .literag-mention-item-name {
@@ -1022,6 +1186,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .literag-mention-item-path {
@@ -1030,26 +1195,28 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .literag-mention-count {
   font-size: 10.5px;
   color: var(--text-muted);
   background: var(--background-modifier-border);
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 8px;
   flex-shrink: 0;
 }
 
 .literag-mention-empty {
-  padding: 16px;
+  padding: 20px 16px;
   text-align: center;
   color: var(--text-faint);
   font-size: 12.5px;
 }
 
 /* ============================================================
- * 文件选择器覆盖弹窗
+ * 文件/文件夹选择器覆盖弹窗
+ * 修复：圆角、内边距、滚动条、对齐、动画、深色模式
  * ============================================================ */
 .literag-file-picker-overlay,
 .literag-folder-picker-overlay {
@@ -1061,24 +1228,48 @@
   background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
   border-bottom: none;
-  border-radius: 10px 10px 0 0;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
-  max-height: 280px;
+  border-radius: 12px 12px 0 0;
+  box-shadow:
+    0 -6px 28px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
+  max-height: 300px;
   overflow-y: auto;
   animation: literag-picker-up 0.18s ease;
+  scroll-padding: 4px 0;
 }
 
 @keyframes literag-picker-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* 滚动条美化 + 避免遮挡内容 */
+.literag-file-picker-overlay::-webkit-scrollbar,
+.literag-folder-picker-overlay::-webkit-scrollbar {
+  width: 5px;
+}
+.literag-file-picker-overlay::-webkit-scrollbar-track,
+.literag-folder-picker-overlay::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+.literag-file-picker-overlay::-webkit-scrollbar-thumb,
+.literag-folder-picker-overlay::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+}
+.literag-file-picker-overlay::-webkit-scrollbar-thumb:hover,
+.literag-folder-picker-overlay::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ---- 标题栏 ---- */
 .literag-file-picker-header,
 .literag-folder-picker-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 14px 6px;
+  padding: 10px 14px 8px;
   font-size: 12.5px;
   font-weight: 600;
   border-bottom: 1px solid var(--background-modifier-border);
@@ -1090,65 +1281,84 @@
 
 .literag-file-picker-header button,
 .literag-folder-picker-header button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   background: none;
   border: none;
+  border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
   color: var(--text-muted);
-  padding: 2px 6px;
-  border-radius: 4px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 .literag-file-picker-header button:hover,
 .literag-folder-picker-header button:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
+  transform: scale(1.05);
 }
 
+/* ---- 搜索框 ---- */
 .literag-file-picker-search {
   width: calc(100% - 28px);
-  margin: 6px 14px 0;
-  padding: 6px 10px;
+  margin: 8px 14px 4px;
+  padding: 7px 10px;
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
-  background: var(--background-primary);
+  border-radius: 8px;
+  background: var(--background-secondary);
   color: var(--text-normal);
   font-size: 12.5px;
   outline: none;
   box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .literag-file-picker-search:focus {
-  border-color: var(--interactive-accent);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
 }
 
+/* ---- 选项列表容器（含滚动缓冲）---- */
 .literag-file-picker-list,
 .literag-folder-picker-list {
-  padding: 6px 8px 10px;
+  padding: 4px 6px 8px;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
+/* ---- 选项卡片 ---- */
 .literag-file-picker-item,
 .literag-folder-picker-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 6px;
+  gap: 10px;
+  padding: 9px 12px;
+  margin: 0 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: all 0.15s ease;
 }
 .literag-file-picker-item:hover,
 .literag-folder-picker-item:hover {
   background: var(--background-modifier-hover);
+  transform: translateX(2px);
 }
 
+/* ---- 选项图标（与文字垂直居中对齐）---- */
 .literag-file-picker-item-icon,
 .literag-folder-picker-item-icon {
-  font-size: 15px;
+  font-size: 16px;
   flex-shrink: 0;
+  line-height: 1;
+  width: 20px;
+  text-align: center;
 }
 
+/* ---- 选项文字（含截断兜底）---- */
 .literag-file-picker-item-name,
 .literag-folder-picker-item-name {
   font-size: 13px;
@@ -1159,32 +1369,46 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .literag-file-picker-item-path {
   font-size: 10.5px;
   color: var(--text-faint);
-  flex: 1;
-  min-width: 0;
+  flex-shrink: 0;
+  max-width: 120px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: right;
+  line-height: 1.3;
 }
 
 .literag-folder-picker-item-count {
-  font-size: 11px;
-  color: var(--interactive-accent);
-  background: rgba(var(--interactive-accent-rgb), 0.1);
-  padding: 1px 7px;
+  font-size: 10.5px;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 2px 7px;
   border-radius: 8px;
   flex-shrink: 0;
+  font-weight: 500;
 }
 
 .literag-file-picker-empty {
-  padding: 16px;
+  padding: 20px 16px;
   text-align: center;
   color: var(--text-faint);
   font-size: 12.5px;
+}
+
+/* ---- 深色模式适配 ---- */
+.theme-dark .literag-file-picker-overlay,
+.theme-dark .literag-folder-picker-overlay {
+  box-shadow:
+    0 -6px 28px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.08) inset;
+}
+
+.theme-dark .literag-folder-picker-item-count {
+  background: rgba(139, 92, 246, 0.15);
 }
 

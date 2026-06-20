@@ -3,7 +3,7 @@
 // 使用防抖避免频繁触发（1 秒内的多次修改只入库一次）
 // 监听整个 Vault（包括所有子文件夹）
 // ============================================================
-import type { Vault, TAbstractFile, TFile } from "obsidian";
+import type { Vault, TAbstractFile, TFile, EventRef } from "obsidian";
 import { Notice } from "obsidian";
 import type { LiteRAGClient } from "./LiteRAGClient";
 
@@ -13,7 +13,7 @@ export class VaultSync {
   private debounceMap = new Map<string, ReturnType<typeof setTimeout>>();
   private debounceMs: number;
   private enabled = false;
-  private eventRefs: (() => void)[] = []; // 存储事件解绑函数
+  private eventRefs: EventRef[] = []; // 存储事件引用
 
   constructor(vault: Vault, liteRAG: LiteRAGClient, debounceMs = 1000) {
     this.vault = vault;
@@ -44,7 +44,7 @@ export class VaultSync {
   stop() {
     this.enabled = false;
     // 解绑所有事件
-    this.eventRefs.forEach((off) => off());
+    this.eventRefs.forEach((ref) => this.vault.offref(ref));
     this.eventRefs = [];
     this.debounceMap.forEach((timer) => clearTimeout(timer));
     this.debounceMap.clear();

@@ -421,26 +421,55 @@ export function ChatInput({ app, mode, onModeChange, onSend, disabled }: Props) 
                 style={{
                   position: "fixed",
                   left: rect.left,
-                  bottom: `${window.innerHeight - rect.top + 6}px`,
+                  bottom: `${window.innerHeight - rect.top + 8}px`,
                   zIndex: 9999,
                 }}
                 onMouseDown={e => e.preventDefault()} // 防止 blur 触发关闭
               >
-                <div
-                  className={`literag-mode-popover-option ${mode === "ark" ? "active" : ""}`}
-                  onMouseDown={() => { onModeChange("ark"); setShowModePop(false); }}
-                >
-                  💬 ARK 模式
-                  <span className="literag-mode-popover-hint">纯对话 · 不检索</span>
-                  {mode === "ark" && <span className="literag-mode-popover-check">✓</span>}
+                {/* 标题栏 */}
+                <div className="literag-mode-popover-header">
+                  <span className="literag-mode-popover-title">选择对话模式</span>
+                  <button
+                    className="literag-mode-popover-close"
+                    onClick={() => setShowModePop(false)}
+                    onMouseDown={e => e.preventDefault()}
+                  >✕</button>
                 </div>
-                <div
-                  className={`literag-mode-popover-option ${mode === "agent" ? "active" : ""}`}
-                  onMouseDown={() => { onModeChange("agent"); setShowModePop(false); }}
-                >
-                  🤖 Agent 模式
-                  <span className="literag-mode-popover-hint">知识库增强 · 自动兜底</span>
-                  {mode === "agent" && <span className="literag-mode-popover-check">✓</span>}
+
+                {/* 选项列表 */}
+                <div className="literag-mode-popover-body">
+                  <div
+                    className={`literag-mode-popover-option ${mode === "ark" ? "active" : ""}`}
+                    onMouseDown={() => { onModeChange("ark"); setShowModePop(false); }}
+                  >
+                    <div className="literag-mode-option-icon">💬</div>
+                    <div className="literag-mode-option-content">
+                      <div className="literag-mode-option-name">
+                        ARK 模式
+                        {mode === "ark" && <span className="literag-mode-option-check">✓ 当前</span>}
+                      </div>
+                      <div className="literag-mode-option-desc">
+                        纯模型对话，不检索知识库。适合自由聊天、写代码、头脑风暴。
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`literag-mode-popover-option ${mode === "agent" ? "active" : ""}`}
+                    onMouseDown={() => { onModeChange("agent"); setShowModePop(false); }}
+                  >
+                    <div className="literag-mode-option-icon">🤖</div>
+                    <div className="literag-mode-option-content">
+                      <div className="literag-mode-option-name">
+                        Agent 模式
+                        {mode === "agent" && <span className="literag-mode-option-check">✓ 当前</span>}
+                      </div>
+                      <div className="literag-mode-option-desc">
+                        先检索知识库，再综合回答。适合查询笔记、总结文档、引用资料。
+                        <span className="literag-mode-option-hint">（LiteRAG 未连接时自动跳过检索）</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
